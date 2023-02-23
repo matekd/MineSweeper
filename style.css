@@ -1,0 +1,31 @@
+.tile {
+    /* 20x20 */
+    height:16px;
+    width: 16px;
+    background-color: rgb(230, 230, 230);
+    border-style: solid;
+    border-color: rgb(187, 187, 187);
+    border-width: 2px;
+    text-align: center;
+}
+.row {
+    display: flex;
+    /*flex-wrap: wrap;
+    width: 40px;*/
+}
+.grid {
+    border-style: solid;
+    border-color: rgb(187, 187, 187);
+    border-width: 1px;
+    width: fit-content;
+}
+body {
+    padding-left: 40%;
+    padding-top: 75px;
+}
+.test{
+    border-bottom-color: rgb(150, 150, 150);
+    border-right-color: rgb(150, 150, 150);
+    border-top-color: rgb(240, 240, 240);
+    border-left-color: rgb(240, 240, 240);
+}
