@@ -23,8 +23,7 @@ class Tile {
       if (this.isFlagged) return '^'   // Flag
       if (this.isRevealed) {
          if (this.hasMine) return '*'  // Mine
-         if (this.adjMines) return this.adjMines // Number 1-8
-         return ' '                    // Empty
+         return this.adjMines       // Number 0-8
       }
       return '-'                       // Not revealed, nor flagged
    }
@@ -89,6 +88,8 @@ function generate() {
    let mines = document.getElementById("Mines").value
    let x = document.getElementById("X").value
    let y = document.getElementById("Y").value
+
+   //var a = document.createElement("div")
    
    if (!x || !y || !mines || mines <= 0 || x <= 0 || y <= 0) {
       console.log("All numbers must be filled in and be above 0")
