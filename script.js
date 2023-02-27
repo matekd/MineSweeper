@@ -141,16 +141,13 @@ function revealTile(x, y) {
    printGrid()
    // A tile is empty if it has no mine nor any adjecent mines, this allows chain revealing
    if (!mat[y][x].isEmpty) return
-   // First check if X and Y is within the matrix, only if they are check if the tile is revealed
-   if (indexInMatrix(x+1, y,   mat)) if (notRev(x+1, y  )) revealTile(x+1, y  ) // right
-   if (indexInMatrix(x+1, y+1, mat)) if (notRev(x+1, y+1)) revealTile(x+1, y+1) // down right
-   if (indexInMatrix(x,   y+1, mat)) if (notRev(x,   y+1)) revealTile(x,   y+1) // down
-   if (indexInMatrix(x-1, y+1, mat)) if (notRev(x-1, y+1)) revealTile(x-1, y+1) // down left
-   if (indexInMatrix(x-1, y,   mat)) if (notRev(x-1, y  )) revealTile(x-1, y  ) // left
-   if (indexInMatrix(x-1, y-1, mat)) if (notRev(x-1, y-1)) revealTile(x-1, y-1) // up left
-   if (indexInMatrix(x,   y-1, mat)) if (notRev(x,   y-1)) revealTile(x,   y-1) // up
-   if (indexInMatrix(x+1, y-1, mat)) if (notRev(x+1, y-1)) revealTile(x+1, y-1) // up right
-   
+   // Check all surrounding indexes, if they are valid, if they are revealed and revealing if not
+   for (let i = -1; i < 2; i++) {
+      for (let j = -1; j < 2; j++) {
+         if (!i && !j) continue
+         if (indexInMatrix(x + i, y + j, mat)) if (notRev(x + i, y + j)) revealTile(x + i, y + j)
+      }
+   }
 }
 
 function indexInMatrix(x, y, mat) {
@@ -165,17 +162,16 @@ function notRev(x, y) {
 // Counts how many mines a tile is adjecent to, except for tiles which has a mine
 function countAdjMines() {
    let mat = grid
-   for (let i = 0; i < mat.length; i++) {
-      for (let j = 0; j < mat[0].length; j++) {
-         if (mat[i][j].hasMine) {
-               if (indexInMatrix(j+1, i,   mat)) mat[i][j+1].addAdjMines()   // right
-               if (indexInMatrix(j+1, i+1, mat)) mat[i+1][j+1].addAdjMines() // down right
-               if (indexInMatrix(j,   i+1, mat)) mat[i+1][j].addAdjMines()   // down
-               if (indexInMatrix(j-1, i+1, mat)) mat[i+1][j-1].addAdjMines() // down left
-               if (indexInMatrix(j-1, i,   mat)) mat[i][j-1].addAdjMines()   // left
-               if (indexInMatrix(j-1, i-1, mat)) mat[i-1][j-1].addAdjMines() // up left
-               if (indexInMatrix(j,   i-1, mat)) mat[i-1][j].addAdjMines()   // up
-               if (indexInMatrix(j+1, i-1, mat)) mat[i-1][j+1].addAdjMines() // up right
+   for (let y = 0; y < mat.length; y++) {
+      for (let x = 0; x < mat[0].length; x++) {
+
+         if (!mat[y][x].hasMine) continue
+
+         for (let i = -1; i < 2; i++) {
+            for (let j = -1; j < 2; j++) {
+               if (!i && !j) continue
+               if (indexInMatrix(x + i, y + j, mat)) mat[y + j][x + i].addAdjMines()
+            }
          }
       }
    }
@@ -195,4 +191,17 @@ function flag(x, y) {
    if (totalMines == flaggedMines && totalFlags == flaggedMines) console.log("You win!")
 }
 
-//function adjIndeces(x, y) {}
+// For developing only
+function revAll() {
+   console.clear()
+   let str = ""
+   for (let i = grid.length - 1; i >= 0; i--) {
+      for (let j = 0; j < grid[0].length; j++) {
+         grid[i][j].isRevealed = true
+         str += grid[i][j].toString()
+      }
+      str += "\n"
+   }
+   console.log(str)
+}
+
