@@ -20,12 +20,12 @@ class Tile {
 
    // temp values
    toString() {
-      if (this.isFlagged) return '^'   // Flag
+      if (this.isFlagged) return '^'  // Flag
       if (this.isRevealed) {
-         if (this.hasMine) return '*'  // Mine
-         return this.adjMines       // Number 0-8
+         if (this.hasMine) return '*' // Mine
+         return this.adjMines         // Number 0-8
       }
-      return '-'                       // Not revealed, nor flagged
+      return '-'                      // Not revealed, nor flagged
    }
 
    // Only tiles without a mine needs to know how many adjecent mines there are
@@ -113,7 +113,7 @@ function printGrid() {
    console.clear()
    let str = ""
    // First loop through rows (vertical), then columns (horizontal)
-   for (let i = 0; i < grid.length; i++) {
+   for (let i = grid.length - 1; i >= 0; i--) {
       for (let j = 0; j < grid[0].length; j++) {
          str += grid[i][j].toString()
       }
