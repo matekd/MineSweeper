@@ -37,6 +37,7 @@ class Tile {
 }
 
 var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = []
+const maxGridsize = 2500
 
 // Creates an array of tiles, mined tiles are placed first
 function fillArray(mines, x, y) {
@@ -86,10 +87,16 @@ function toMatrix(x, y, arr) {
 function generate() {
 
    let mines = document.getElementById("Mines").value
-   let x = document.getElementById("X").value
-   let y = document.getElementById("Y").value
+   let x = Number(document.getElementById("X").value)
+   let y = Number(document.getElementById("Y").value)
 
    //var a = document.createElement("div")
+
+   if (x * y > maxGridsize) {
+      console.log("The grid cannot contain more than " + maxGridsize + " tiles!")
+      grid = [] // Reset grid
+      return
+   }
    
    if (!x || !y || !mines || mines <= 0 || x <= 0 || y <= 0) {
       console.log("All numbers must be filled in and be above 0")
@@ -106,11 +113,11 @@ function generate() {
    // Add the amount of adjecent mines for each tile, if more than 0 then it is no longer empty
    countAdjMines()
 
+   console.clear()
    printGrid()
 }
 
 function printGrid() {
-   console.clear()
    let str = ""
    // First loop through rows (vertical), then columns (horizontal)
    for (let i = grid.length - 1; i >= 0; i--) {
@@ -129,16 +136,16 @@ function revealTile(x, y) {
    if (!indexInMatrix(x, y, mat)) return
    // Is already revealed
    if (mat[y][x].isRevealed) return
+   // If flagged then 'unflag'
+   if (mat[y][x].isFlagged) flag(x, y)
    // [6 7 8]
-   // [5 . 1] Order of revealing from center: .
-   // [4 3 2]
+   // [4 . 5] Order of revealing from center: .
+   // [1 2 3]
    // If tile has mine
    if (mat[y][x].reveal()) {
-      printGrid()
       console.log("Gameover")
       return
    }
-   printGrid()
    // A tile is empty if it has no mine nor any adjecent mines, this allows chain revealing
    if (!mat[y][x].isEmpty) return
    // Check all surrounding indexes, if they are valid, if they are revealed and revealing if not
@@ -151,6 +158,7 @@ function revealTile(x, y) {
 }
 
 function indexInMatrix(x, y, mat) {
+   if (mat.length === 0) return false
    return x < mat[0].length && y < mat.length && x >= 0 && y >= 0
 }
 
@@ -179,6 +187,7 @@ function countAdjMines() {
 
 function flag(x, y) {
    if (!indexInMatrix(x, y, grid)) return
+   if (grid[y][x].isRevealed) return
    grid[y][x].toggleFlag()
    if (grid[y][x].isFlagged) {
       totalFlags++
@@ -187,8 +196,33 @@ function flag(x, y) {
       totalFlags--
       if (grid[y][x].hasMine) flaggedMines--
    }
-   printGrid()
    if (totalMines == flaggedMines && totalFlags == flaggedMines) console.log("You win!")
+}
+
+function onReveal() {
+   let x = Number(document.getElementById("XReveal").value)
+   let y = Number(document.getElementById("YReveal").value)
+
+   if (x < 0 || y < 0) {
+      console.log("All numbers must be filled in and be positive")
+      return
+   }
+   console.clear()
+   revealTile(x, y)
+   printGrid()
+}
+
+function onFlag() {
+   let x = Number(document.getElementById("XFlag").value)
+   let y = Number(document.getElementById("YFlag").value)
+
+   if (x < 0 || y < 0) {
+      console.log("All numbers must be filled in and be positive")
+      return
+   }
+   console.clear()
+   flag(x, y)
+   printGrid()
 }
 
 // For developing only
@@ -204,4 +238,3 @@ function revAll() {
    }
    console.log(str)
 }
-

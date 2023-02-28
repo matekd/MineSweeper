@@ -18,10 +18,20 @@
     border-color: rgb(187, 187, 187);
     border-width: 1px;
     width: fit-content;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    
+    font-family: monospace;
 }
 body {
     padding-left: 40%;
     padding-top: 75px;
+}
+input {
+    width: 40px;
+}
+p {
+    margin: auto;
 }
 .test{
     border-bottom-color: rgb(150, 150, 150);

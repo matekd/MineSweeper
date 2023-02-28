@@ -9,16 +9,36 @@
 </head>
 <body>
 	<div>
-		<label>Grid size</label><br>
-		<label>X</label>
-		<input type="number" id="X" value="5"><br>
-		<label>Y</label>
-		<input type="number" id="Y" value="3"><br>
-		<label>Mines</label><br>
-		<input type="number" id="Mines" value="4"><br>
+		<label>Grid size</label> <br>
+		<label>X: </label> <input type="number" id="X" value="5"> <br>
+		<label>Y: </label> <input type="number" id="Y" value="3"> <br>
+		<label>Mines: </label> <input type="number" id="Mines" value="4"> <br>
 		<button onclick="generate()">Generate</button>
 	</div>
 
+	<h3>View grid in the console</h3>
+	<p>Win by flagging all mines</p>
+
+	<div>
+		<label>X: </label> <input type="number" id="XReveal" value="0">
+		<label>Y: </label> <input type="number" id="YReveal" value="0">
+		<button onclick="onReveal()">Reveal</button>
+	</div>
+
+	<div>
+		<label>X: </label> <input type="number" id="XFlag" value="0">
+		<label>Y: </label> <input type="number" id="YFlag" value="0">
+		<button onclick="onFlag()">Flag</button>
+	</div>
+
+	<br> <p>Testing grid look</p>
+	<div class="grid">
+		<p id="grid">
+					|-2-|<br>
+					|12^|<br>
+					|&nbsp;1-|
+		</p>
+	</div>
 	<div class="grid">
 		<div class="row">
 			<div class="tile test" onclick="console.log('test')"></div>
@@ -32,13 +52,6 @@
 		</div>
 	</div>
 
-	<p>
-		Win by only flagging all mines<br>
-		Reveal tile with <b>revealTile(x, y)</b>, 0 to X-1, 0 to Y-1<br>
-		Flag and unflag tile with <b>flag(x, y)</b>, 0 to X-1, 0 to Y-1
-	</p>
-
-	<!--<script src="test.js"></script>-->
 	<script src="script.js"></script>
 </body>
 </html>
