@@ -188,7 +188,9 @@ function countAdjMines() {
 function flag(x, y) {
    if (!indexInMatrix(x, y, grid)) return
    if (grid[y][x].isRevealed) return
+
    grid[y][x].toggleFlag()
+
    if (grid[y][x].isFlagged) {
       totalFlags++
       if (grid[y][x].hasMine) flaggedMines++
@@ -223,6 +225,25 @@ function onFlag() {
    console.clear()
    flag(x, y)
    printGrid()
+}
+
+// test printing tiles
+document.getElementsByClassName("grid")[0].innerHTML += `<div class="row"></div>`
+for (let i = 6; i < 9; i++) {
+   document.getElementsByClassName('row')[2].innerHTML += 
+      `<div 
+         class="tile" 
+         onclick="test(${i})" 
+         oncontextmenu="alert('Flagged ' + ${i});return false">
+         ${i}
+      </div>`
+}
+
+// test revealing tile, changing style and value
+function test(i) {
+   let elements = document.getElementsByClassName("tile")
+   elements[i].className = "tile revealed"
+   elements[i].innerHTML = " "
 }
 
 // For developing only

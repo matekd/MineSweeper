@@ -31,24 +31,16 @@
 		<button onclick="onFlag()">Flag</button>
 	</div>
 
-	<br> <p>Testing grid look</p>
-	<div class="grid">
-		<p id="grid">
-					|-2-|<br>
-					|12^|<br>
-					|&nbsp;1-|
-		</p>
-	</div>
 	<div class="grid">
 		<div class="row">
-			<div class="tile test" onclick="console.log('test')"></div>
-			<div class="tile" onclick="console.log('test')"></div>
-			<div class="tile" onclick="console.log('test')" oncontextmenu="alert('Flagged');return false">1</div>
+			<div class="tile" onclick="test(0)"></div>
+			<div class="tile" onclick="test(1)"></div>
+			<div class="tile revealed" onclick="console.log('test')" oncontextmenu="alert('Flagged');return false">1</div>
 		</div>
 		<div class="row">
-			<div class="tile test" onclick="console.log('test')">^</div>
-			<div class="tile" onclick="console.log('test')">2</div>
-			<div class="tile" style="border-color: rgb(255, 52, 52);" onclick="console.log('test')">*</div>
+			<div class="tile revealed" onclick="console.log('test')">^</div>
+			<div class="tile revealed" onclick="console.log('test')">2</div>
+			<div class="tile revealed" onclick="console.log('test')">*</div>
 		</div>
 	</div>
 

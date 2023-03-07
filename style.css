@@ -4,7 +4,10 @@
     width: 16px;
     background-color: rgb(230, 230, 230);
     border-style: solid;
-    border-color: rgb(187, 187, 187);
+    border-bottom-color: rgb(150, 150, 150);
+    border-right-color: rgb(150, 150, 150);
+    border-top-color: rgb(240, 240, 240);
+    border-left-color: rgb(240, 240, 240);
     border-width: 2px;
     text-align: center;
 }
@@ -20,12 +23,12 @@
     width: fit-content;
     margin-top: 12px;
     margin-bottom: 12px;
-    
     font-family: monospace;
 }
 body {
-    padding-left: 40%;
     padding-top: 75px;
+    margin: auto;
+    width: 50%;
 }
 input {
     width: 40px;
@@ -33,9 +36,6 @@ input {
 p {
     margin: auto;
 }
-.test{
-    border-bottom-color: rgb(150, 150, 150);
-    border-right-color: rgb(150, 150, 150);
-    border-top-color: rgb(240, 240, 240);
-    border-left-color: rgb(240, 240, 240);
+.revealed {
+    border-color: rgb(187, 187, 187);
 }
