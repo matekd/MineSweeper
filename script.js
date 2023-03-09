@@ -25,7 +25,7 @@ class Tile {
          if (this.hasMine) return '*' // Mine
          return this.adjMines         // Number 0-8
       }
-      return '-'                      // Not revealed, nor flagged
+      return ' '                      // Not revealed, nor flagged
    }
 
    // Only tiles without a mine needs to know how many adjecent mines there are
@@ -39,7 +39,7 @@ class Tile {
 var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = []
 const maxGridsize = 2500
 
-// Creates an array of tiles, mined tiles are placed first
+// Creates an array of tiles, tiles with mines are placed first
 function fillArray(mines, x, y) {
 
    // Check that all mines fit and that the grid is not zero in size
@@ -53,7 +53,7 @@ function fillArray(mines, x, y) {
    return arr
 }
 
-// Shuffles the array to spread the mined tiles throughout the array
+// Shuffles the array to spread the tiles with mines
 function shuffleArray(arr) {
 
    let randIndex, temp
@@ -73,8 +73,7 @@ function toMatrix(x, y, arr) {
 
    if (x * y !== arr.length) return null
 
-   let mat = []
-   let row = []
+   let mat = [], row = []
 
    for (let i = 0; i < y; i++) {
       row = arr.slice(x * i, x * (i + 1))
@@ -86,11 +85,9 @@ function toMatrix(x, y, arr) {
 
 function generate() {
 
-   let mines = document.getElementById("Mines").value
+   let mines = Number(document.getElementById("Mines").value)
    let x = Number(document.getElementById("X").value)
    let y = Number(document.getElementById("Y").value)
-
-   //var a = document.createElement("div")
 
    if (x * y > maxGridsize) {
       console.log("The grid cannot contain more than " + maxGridsize + " tiles!")
@@ -104,6 +101,7 @@ function generate() {
    }
 
    totalMines = mines
+   document.getElementById("grid").innerHTML = ""
    
    // Create an array of tiles, shuffle them, then form them into a matrix (grid)
    grid = toMatrix(x, y, shuffleArray(fillArray(mines, x, y)))
@@ -113,14 +111,28 @@ function generate() {
    // Add the amount of adjecent mines for each tile, if more than 0 then it is no longer empty
    countAdjMines()
 
+   for (let i = 0; i < y; i++) {
+      document.getElementById("grid").innerHTML += `<div class="row"></div>`
+      for (let j = 0; j < x; j++) {
+         
+         document.getElementsByClassName('row')[i].innerHTML += 
+            `<div 
+               class="tile" 
+               onclick="onReveal(${j}, ${i})" 
+               oncontextmenu="onFlag(${j}, ${i});return false">
+               ${grid[i][j].toString()}
+            </div>`
+      }
+   }
+
    console.clear()
    printGrid()
 }
 
 function printGrid() {
    let str = ""
-   // First loop through rows (vertical), then columns (horizontal)
-   for (let i = grid.length - 1; i >= 0; i--) {
+   // Flipping Y axis to move (0,0) to bottom left corner
+   for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[0].length; j++) {
          str += grid[i][j].toString()
       }
@@ -132,27 +144,30 @@ function printGrid() {
 // Reveal Tile Vertical, Horizontal and Diagonal
 function revealTile(x, y) {
    mat = grid
-   // Reached outside of matrix
+   // Outside of matrix
    if (!indexInMatrix(x, y, mat)) return
+
    // Is already revealed
    if (mat[y][x].isRevealed) return
-   // If flagged then 'unflag'
+
+   // Unflag if flagged
    if (mat[y][x].isFlagged) flag(x, y)
-   // [6 7 8]
-   // [4 . 5] Order of revealing from center: .
-   // [1 2 3]
+
    // If tile has mine
    if (mat[y][x].reveal()) {
-      console.log("Gameover")
+      alert("Gameover")
       return
    }
-   // A tile is empty if it has no mine nor any adjecent mines, this allows chain revealing
+   // If a tile is empty, reveal all neighbours, otherwise return
    if (!mat[y][x].isEmpty) return
-   // Check all surrounding indexes, if they are valid, if they are revealed and revealing if not
+
+   // Check if all surrounding indexes are valid then reveal them
    for (let i = -1; i < 2; i++) {
       for (let j = -1; j < 2; j++) {
+         // If both are 0 then it is the center, not a neighbour
          if (!i && !j) continue
-         if (indexInMatrix(x + i, y + j, mat)) if (notRev(x + i, y + j)) revealTile(x + i, y + j)
+         if (!indexInMatrix(x + i, y + j, mat)) continue
+         if (!grid[x + i][y + j].isRevealed) revealTile(x + i, y + j)
       }
    }
 }
@@ -160,11 +175,6 @@ function revealTile(x, y) {
 function indexInMatrix(x, y, mat) {
    if (mat.length === 0) return false
    return x < mat[0].length && y < mat.length && x >= 0 && y >= 0
-}
-
-// Check if tile is not revealed
-function notRev(x, y) {
-   return !grid[y][x].isRevealed
 }
 
 // Counts how many mines a tile is adjecent to, except for tiles which has a mine
@@ -175,6 +185,7 @@ function countAdjMines() {
 
          if (!mat[y][x].hasMine) continue
 
+         // Checking adjecent indexes, ignoring the center
          for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
                if (!i && !j) continue
@@ -198,12 +209,10 @@ function flag(x, y) {
       totalFlags--
       if (grid[y][x].hasMine) flaggedMines--
    }
-   if (totalMines == flaggedMines && totalFlags == flaggedMines) console.log("You win!")
+   if (totalMines == flaggedMines && totalFlags == flaggedMines) alert("You win!")
 }
 
-function onReveal() {
-   let x = Number(document.getElementById("XReveal").value)
-   let y = Number(document.getElementById("YReveal").value)
+function onReveal(x, y) {
 
    if (x < 0 || y < 0) {
       console.log("All numbers must be filled in and be positive")
@@ -211,12 +220,20 @@ function onReveal() {
    }
    console.clear()
    revealTile(x, y)
+
+   // Output
+   for (let i = 0; i < grid.length; i++) {
+      let row = document.getElementsByClassName("row")[i]
+      for (let j = 0; j < grid[0].length; j++) {
+         
+         row.children[j].innerHTML = grid[i][j].toString()
+         if (grid[i][j].isRevealed) row.children[j].className = "tile revealed"
+      }
+   }
    printGrid()
 }
 
-function onFlag() {
-   let x = Number(document.getElementById("XFlag").value)
-   let y = Number(document.getElementById("YFlag").value)
+function onFlag(x, y) {
 
    if (x < 0 || y < 0) {
       console.log("All numbers must be filled in and be positive")
@@ -224,26 +241,11 @@ function onFlag() {
    }
    console.clear()
    flag(x, y)
+
+   // Output
+   let row = document.getElementsByClassName('row')[y]
+   row.children[x].innerHTML = grid[y][x].toString()
    printGrid()
-}
-
-// test printing tiles
-document.getElementsByClassName("grid")[0].innerHTML += `<div class="row"></div>`
-for (let i = 6; i < 9; i++) {
-   document.getElementsByClassName('row')[2].innerHTML += 
-      `<div 
-         class="tile" 
-         onclick="test(${i})" 
-         oncontextmenu="alert('Flagged ' + ${i});return false">
-         ${i}
-      </div>`
-}
-
-// test revealing tile, changing style and value
-function test(i) {
-   let elements = document.getElementsByClassName("tile")
-   elements[i].className = "tile revealed"
-   elements[i].innerHTML = " "
 }
 
 // For developing only
