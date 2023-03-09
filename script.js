@@ -167,7 +167,8 @@ function revealTile(x, y) {
          // If both are 0 then it is the center, not a neighbour
          if (!i && !j) continue
          if (!indexInMatrix(x + i, y + j, mat)) continue
-         if (!grid[x + i][y + j].isRevealed) revealTile(x + i, y + j)
+         if (!grid[y + j][x + i].isRevealed) revealTile(x + i, y + j)
+         
       }
    }
 }
