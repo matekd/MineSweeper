@@ -89,14 +89,16 @@ function generate() {
    let x = Number(document.getElementById("X").value)
    let y = Number(document.getElementById("Y").value)
 
+   totalFlags = 0, totalMines = 0, flaggedMines = 0 // Reset
+
    if (x * y > maxGridsize) {
-      console.log("The grid cannot contain more than " + maxGridsize + " tiles!")
+      alert("The grid cannot contain more than " + maxGridsize + " tiles!")
       grid = [] // Reset grid
       return
    }
    
    if (!x || !y || !mines || mines <= 0 || x <= 0 || y <= 0) {
-      console.log("All numbers must be filled in and be above 0")
+      alert("All numbers must be filled in and be above 0")
       return
    }
 
@@ -111,6 +113,7 @@ function generate() {
    // Add the amount of adjecent mines for each tile, if more than 0 then it is no longer empty
    countAdjMines()
 
+   // Output
    for (let i = 0; i < y; i++) {
       document.getElementById("grid").innerHTML += `<div class="row"></div>`
       for (let j = 0; j < x; j++) {
@@ -124,7 +127,6 @@ function generate() {
             </div>`
       }
    }
-
    console.clear()
    printGrid()
 }
@@ -219,7 +221,7 @@ function onReveal(x, y) {
       console.log("All numbers must be filled in and be positive")
       return
    }
-   console.clear()
+
    revealTile(x, y)
 
    // Output
@@ -227,10 +229,13 @@ function onReveal(x, y) {
       let row = document.getElementsByClassName("row")[i]
       for (let j = 0; j < grid[0].length; j++) {
          
-         row.children[j].innerHTML = grid[i][j].toString()
-         if (grid[i][j].isRevealed) row.children[j].className = "tile revealed"
+         if (grid[i][j].isRevealed) {
+            row.children[j].className = "tile revealed"
+            row.children[j].innerHTML = grid[i][j].toString()
+         }
       }
    }
+   console.clear()
    printGrid()
 }
 
@@ -240,12 +245,13 @@ function onFlag(x, y) {
       console.log("All numbers must be filled in and be positive")
       return
    }
-   console.clear()
+   
    flag(x, y)
 
    // Output
    let row = document.getElementsByClassName('row')[y]
    row.children[x].innerHTML = grid[y][x].toString()
+   console.clear()
    printGrid()
 }
 
