@@ -20,12 +20,10 @@ class Tile {
 
    // temp values
    toString() {
-      if (this.isFlagged) return '^'  // Flag
-      if (this.isRevealed) {
-         if (this.hasMine) return '*' // Mine
-         return this.adjMines         // Number 0-8
-      }
-      return ' '                      // Not revealed, nor flagged
+      if (this.isFlagged) return '^'   // Flag
+      if (!this.isRevealed) return ' ' // Not revealed
+      if (this.hasMine) return '*'     // Mine
+      return this.adjMines ? this.adjMines : ' ' // 1-8 or ' ' if 0
    }
 
    // Only tiles without a mine needs to know how many adjecent mines there are
