@@ -40,9 +40,6 @@ const maxGridsize = 2500
 // Creates an array of tiles, tiles with mines are placed first
 function fillArray(mines, x, y) {
 
-   // Check that all mines fit and that the grid is not zero in size
-   if (x * y < mines || x * y == 0) return
-
    let arr = []
 
    for (let i = x * y; i > 0; i--) {
@@ -86,12 +83,13 @@ function generate() {
    let mines = Number(document.getElementById("Mines").value)
    let x = Number(document.getElementById("X").value)
    let y = Number(document.getElementById("Y").value)
-
-   totalFlags = 0, totalMines = 0, flaggedMines = 0 // Reset
+   
+   // Reset before next grid
+   totalFlags = 0, totalMines = 0, flaggedMines = 0, grid = []
+   document.getElementById("grid").innerHTML = ""
 
    if (x * y > maxGridsize) {
       alert("The grid cannot contain more than " + maxGridsize + " tiles!")
-      grid = [] // Reset grid
       return
    }
    
@@ -100,10 +98,13 @@ function generate() {
       return
    }
 
+   if (x * y <= mines) {
+      alert("All tiles can't have mines")
+      return
+   }
+
    totalMines = mines
-   document.getElementById("grid").innerHTML = ""
-   
-   // Create an array of tiles, shuffle them, then form them into a matrix (grid)
+   // Create an array of tiles, shuffle them, then slice them into a matrix (grid)
    grid = toMatrix(x, y, shuffleArray(fillArray(mines, x, y)))
 
    if (grid === null) return
