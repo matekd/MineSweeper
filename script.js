@@ -20,15 +20,13 @@ class Tile {
 
    // temp values
    toString() {
-      if (this.isFlagged) return '^'  // Flag
-      if (this.isRevealed) {
-         if (this.hasMine) return '*' // Mine
-         return this.adjMines         // Number 0-8
-      }
-      return ' '                      // Not revealed, nor flagged
+      if (this.isFlagged) return '^'   // Flag
+      if (!this.isRevealed) return ' ' // Not revealed
+      if (this.hasMine) return '*'     // Mine
+      return this.adjMines ? this.adjMines : ' ' // 1-8 or ' ' if 0
    }
 
-   // Only tiles without a mine needs to know how many adjecent mines there are
+   // Only tiles without a mine keep track of adjecent mines
    addAdjMines() {
       if (this.hasMine) return
       this.adjMines++
@@ -37,13 +35,11 @@ class Tile {
 }
 
 var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = []
-const maxGridsize = 2500
+const maxGridsize = 2500, 
+   colors = ['#000000', '#0000cc', '#339933', '#cc3300', '#000080', '#800000', '#006600', '#b36b00', '#ff9900']
 
 // Creates an array of tiles, tiles with mines are placed first
 function fillArray(mines, x, y) {
-
-   // Check that all mines fit and that the grid is not zero in size
-   if (x * y < mines || x * y == 0) return
 
    let arr = []
 
@@ -88,22 +84,28 @@ function generate() {
    let mines = Number(document.getElementById("Mines").value)
    let x = Number(document.getElementById("X").value)
    let y = Number(document.getElementById("Y").value)
+   
+   // Reset before next grid
+   totalFlags = 0, totalMines = 0, flaggedMines = 0, grid = []
+   document.getElementById("grid").innerHTML = ""
 
    if (x * y > maxGridsize) {
-      console.log("The grid cannot contain more than " + maxGridsize + " tiles!")
-      grid = [] // Reset grid
+      alert("The grid cannot contain more than " + maxGridsize + " tiles!")
       return
    }
    
    if (!x || !y || !mines || mines <= 0 || x <= 0 || y <= 0) {
-      console.log("All numbers must be filled in and be above 0")
+      alert("All numbers must be filled in and be above 0")
+      return
+   }
+
+   if (x * y <= mines) {
+      alert("All tiles can't have mines")
       return
    }
 
    totalMines = mines
-   document.getElementById("grid").innerHTML = ""
-   
-   // Create an array of tiles, shuffle them, then form them into a matrix (grid)
+   // Create an array of tiles, shuffle them, then slice them into a matrix (grid)
    grid = toMatrix(x, y, shuffleArray(fillArray(mines, x, y)))
 
    if (grid === null) return
@@ -111,6 +113,7 @@ function generate() {
    // Add the amount of adjecent mines for each tile, if more than 0 then it is no longer empty
    countAdjMines()
 
+   // Output
    for (let i = 0; i < y; i++) {
       document.getElementById("grid").innerHTML += `<div class="row"></div>`
       for (let j = 0; j < x; j++) {
@@ -124,7 +127,6 @@ function generate() {
             </div>`
       }
    }
-
    console.clear()
    printGrid()
 }
@@ -167,7 +169,8 @@ function revealTile(x, y) {
          // If both are 0 then it is the center, not a neighbour
          if (!i && !j) continue
          if (!indexInMatrix(x + i, y + j, mat)) continue
-         if (!grid[x + i][y + j].isRevealed) revealTile(x + i, y + j)
+         if (!grid[y + j][x + i].isRevealed) revealTile(x + i, y + j)
+         
       }
    }
 }
@@ -218,7 +221,7 @@ function onReveal(x, y) {
       console.log("All numbers must be filled in and be positive")
       return
    }
-   console.clear()
+
    revealTile(x, y)
 
    // Output
@@ -226,10 +229,14 @@ function onReveal(x, y) {
       let row = document.getElementsByClassName("row")[i]
       for (let j = 0; j < grid[0].length; j++) {
          
-         row.children[j].innerHTML = grid[i][j].toString()
-         if (grid[i][j].isRevealed) row.children[j].className = "tile revealed"
+         if (grid[i][j].isRevealed) {
+            row.children[j].className = "tile revealed"
+            row.children[j].innerHTML = grid[i][j].toString()
+            row.children[j].style.color = colors[grid[i][j].adjMines]
+         }
       }
    }
+   console.clear()
    printGrid()
 }
 
@@ -239,12 +246,13 @@ function onFlag(x, y) {
       console.log("All numbers must be filled in and be positive")
       return
    }
-   console.clear()
+   
    flag(x, y)
 
    // Output
    let row = document.getElementsByClassName('row')[y]
    row.children[x].innerHTML = grid[y][x].toString()
+   console.clear()
    printGrid()
 }
 
