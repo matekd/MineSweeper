@@ -26,7 +26,7 @@ class Tile {
       return this.adjMines ? this.adjMines : ' ' // 1-8 or ' ' if 0
    }
 
-   // Only tiles without a mine needs to know how many adjecent mines there are
+   // Only tiles without a mine keep track of adjecent mines
    addAdjMines() {
       if (this.hasMine) return
       this.adjMines++
@@ -35,7 +35,8 @@ class Tile {
 }
 
 var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = []
-const maxGridsize = 2500
+const maxGridsize = 2500, 
+   colors = ['#000000', '#0000cc', '#339933', '#cc3300', '#000080', '#800000', '#006600', '#b36b00', '#ff9900']
 
 // Creates an array of tiles, tiles with mines are placed first
 function fillArray(mines, x, y) {
@@ -231,6 +232,7 @@ function onReveal(x, y) {
          if (grid[i][j].isRevealed) {
             row.children[j].className = "tile revealed"
             row.children[j].innerHTML = grid[i][j].toString()
+            row.children[j].style.color = colors[grid[i][j].adjMines]
          }
       }
    }
