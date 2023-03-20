@@ -127,19 +127,18 @@ function generate() {
             </div>`
       }
    }
-   console.clear()
    printGrid()
 }
 
 function printGrid() {
    let str = ""
-   // Flipping Y axis to move (0,0) to bottom left corner
    for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[0].length; j++) {
          str += grid[i][j].toString()
       }
       str += "\n"
    }
+   console.clear()
    console.log(str)
 }
 
@@ -147,21 +146,20 @@ function printGrid() {
 function revealTile(x, y) {
    mat = grid
    // Outside of matrix
-   if (!indexInMatrix(x, y, mat)) return
+   if (!indexInMatrix(x, y, mat)) return 0
 
    // Is already revealed
-   if (mat[y][x].isRevealed) return
+   if (mat[y][x].isRevealed) return 0
 
    // Unflag if flagged
    if (mat[y][x].isFlagged) flag(x, y)
 
    // If tile has mine
    if (mat[y][x].reveal()) {
-      alert("Gameover")
-      return
+      return 1
    }
    // If a tile is empty, reveal all neighbours, otherwise return
-   if (!mat[y][x].isEmpty) return
+   if (!mat[y][x].isEmpty) return 0
 
    // Check if all surrounding indexes are valid then reveal them
    for (let i = -1; i < 2; i++) {
@@ -173,6 +171,7 @@ function revealTile(x, y) {
          
       }
    }
+   return 0
 }
 
 function indexInMatrix(x, y, mat) {
@@ -212,7 +211,6 @@ function flag(x, y) {
       totalFlags--
       if (grid[y][x].hasMine) flaggedMines--
    }
-   if (totalMines == flaggedMines && totalFlags == flaggedMines) alert("You win!")
 }
 
 function onReveal(x, y) {
@@ -222,7 +220,11 @@ function onReveal(x, y) {
       return
    }
 
-   revealTile(x, y)
+   if (revealTile(x, y)) {
+      revAll()
+      document.getElementsByClassName("row")[y].children[x].style.borderColor = "red"; // Highlight mine
+      setTimeout(() => alert("Gameover"), 1)
+   }
 
    // Output
    for (let i = 0; i < grid.length; i++) {
@@ -236,7 +238,6 @@ function onReveal(x, y) {
          }
       }
    }
-   console.clear()
    printGrid()
 }
 
@@ -250,22 +251,21 @@ function onFlag(x, y) {
    flag(x, y)
 
    // Output
-   let row = document.getElementsByClassName('row')[y]
-   row.children[x].innerHTML = grid[y][x].toString()
-   console.clear()
+   if (totalMines == flaggedMines && totalFlags == flaggedMines) {
+      revAll()
+      onReveal(0, 0) // Reveal tile that exists, updates entire grid
+      setTimeout(() => alert("You win!"), 1)
+   } else {
+      let row = document.getElementsByClassName('row')[y]
+      row.children[x].innerHTML = grid[y][x].toString()
+   }
    printGrid()
 }
 
-// For developing only
 function revAll() {
-   console.clear()
-   let str = ""
-   for (let i = grid.length - 1; i >= 0; i--) {
+   for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[0].length; j++) {
-         grid[i][j].isRevealed = true
-         str += grid[i][j].toString()
+         grid[i][j].reveal()
       }
-      str += "\n"
    }
-   console.log(str)
 }

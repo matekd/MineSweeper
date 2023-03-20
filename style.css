@@ -4,8 +4,8 @@
     width: 16px;
     background-color: rgb(230, 230, 230);
     border-style: solid;
-    border-bottom-color: rgb(150, 150, 150);
-    border-right-color: rgb(150, 150, 150);
+    border-bottom-color: rgb(160, 160, 160);
+    border-right-color: rgb(160, 160, 160);
     border-top-color: rgb(240, 240, 240);
     border-left-color: rgb(240, 240, 240);
     border-width: 2px;
@@ -13,16 +13,13 @@
 }
 .row {
     display: flex;
-    /*flex-wrap: wrap;
-    width: 40px;*/
 }
 .grid {
     border-style: solid;
-    border-color: rgb(187, 187, 187);
+    border-color: rgb(200, 200, 200);
     border-width: 1px;
+    width: -moz-fit-content;
     width: fit-content;
-    margin-top: 12px;
-    margin-bottom: 12px;
     font-family: monospace;
     font-weight: bold;
     font-size: 16px;
@@ -39,5 +36,5 @@ p {
     margin: auto;
 }
 .revealed {
-    border-color: rgb(187, 187, 187);
+    border-color: rgb(200, 200, 200);
 }
