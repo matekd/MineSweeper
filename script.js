@@ -127,19 +127,18 @@ function generate() {
             </div>`
       }
    }
-   console.clear()
    printGrid()
 }
 
 function printGrid() {
    let str = ""
-   // Flipping Y axis to move (0,0) to bottom left corner
    for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[0].length; j++) {
          str += grid[i][j].toString()
       }
       str += "\n"
    }
+   console.clear()
    console.log(str)
 }
 
@@ -239,8 +238,6 @@ function onReveal(x, y) {
          }
       }
    }
-   
-   console.clear()
    printGrid()
 }
 
@@ -261,21 +258,14 @@ function onFlag(x, y) {
    } else {
       let row = document.getElementsByClassName('row')[y]
       row.children[x].innerHTML = grid[y][x].toString()
-      console.clear()
-      printGrid()
    }
+   printGrid()
 }
 
-// For developing only
 function revAll() {
-   console.clear()
-   let str = ""
-   for (let i = grid.length - 1; i >= 0; i--) {
+   for (let i = 0; i < grid.length; i++) {
       for (let j = 0; j < grid[0].length; j++) {
-         grid[i][j].isRevealed = true
-         str += grid[i][j].toString()
+         grid[i][j].reveal()
       }
-      str += "\n"
    }
-   console.log(str)
 }
