@@ -26,15 +26,19 @@ class Tile {
       return this.adjMines ? this.adjMines : ' ' // 1-8 or ' ' if 0
    }
 
-   // Only tiles without a mine keep track of adjecent mines
    addAdjMines() {
-      if (this.hasMine) return
       this.adjMines++
       this.isEmpty = false
    }
+
+   remAdjMines() {
+      this.adjMines--
+      // if 0
+      if (!this.adjMines) this.isEmpty = true
+   }
 }
 
-var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = []
+var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = [], firstClick = true
 const maxGridsize = 2500, 
    colors = ['#000000', '#0000cc', '#339933', '#cc3300', '#000080', '#800000', '#006600', '#b36b00', '#ff9900']
 
@@ -104,6 +108,7 @@ function generate() {
       return
    }
 
+   firstClick = true
    totalMines = mines
    // Create an array of tiles, shuffle them, then slice them into a matrix (grid)
    grid = toMatrix(x, y, shuffleArray(fillArray(mines, x, y)))
@@ -144,7 +149,7 @@ function printGrid() {
 
 // Reveal Tile Vertical, Horizontal and Diagonal
 function revealTile(x, y) {
-   mat = grid
+   let mat = grid
    // Outside of matrix
    if (!indexInMatrix(x, y, mat)) return 0
 
@@ -156,8 +161,21 @@ function revealTile(x, y) {
 
    // If tile has mine
    if (mat[y][x].reveal()) {
-      return 1
+      if (!firstClick) return 1
+      
+      for (let i = -1; i < 2; i++) {
+         for (let j = -1; j < 2; j++) {
+            if (!i && !j) continue
+            if (indexInMatrix(x + i, y + j, mat)) mat[y + j][x + i].remAdjMines()
+         }
+      }
+      mat[y][x].hasMine = false
+      totalMines--
+      alert("Removed 1 mine")
    }
+
+   firstClick = false
+
    // If a tile is empty, reveal all neighbours, otherwise return
    if (!mat[y][x].isEmpty) return 0
 
