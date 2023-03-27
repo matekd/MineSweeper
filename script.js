@@ -34,7 +34,7 @@ class Tile {
    remAdjMines() {
       this.adjMines--
       // if 0
-      if (!this.adjMines) this.isEmpty = true
+      if (!this.adjMines && !this.hasMine) this.isEmpty = true
    }
 }
 
@@ -115,9 +115,6 @@ function generate() {
 
    if (grid === null) return
 
-   // Add the amount of adjacent mines for each tile
-   countAdjMines()
-
    // Create the elements of the grid
    for (let i = 0; i < y; i++) {
       document.getElementById("grid").innerHTML += `<div class="row"></div>`
@@ -132,6 +129,9 @@ function generate() {
       }
    }
    printGrid()
+   
+   // Add the amount of adjacent mines for each tile
+   countAdjMines()
 }
 
 function printGrid() {
@@ -198,20 +198,42 @@ function indexInMatrix(x, y, mat) {
 
 // Counts how many mines a tile is adjacent to, except for tiles which has a mine
 function countAdjMines() {
-   let mat = grid
+   let mat = grid, surrMines = 0, minesRemoved = 0
+   // Search for mines and add to adjacent mines for all surrounding tiles
    for (let y = 0; y < mat.length; y++) {
       for (let x = 0; x < mat[0].length; x++) {
 
          if (!mat[y][x].hasMine) continue
 
+         surrMines = 0
          // Checking adjacent indexes, ignoring the center
          for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
                if (!i && !j) continue
-               if (indexInMatrix(x + i, y + j, mat)) mat[y + j][x + i].addAdjMines()
+               if (!indexInMatrix(x + i, y + j, mat)) continue
+               if (mat[y + j][x + i].hasMine) surrMines++
+               mat[y + j][x + i].addAdjMines()
+            }
+         }
+         // Remove mine and reduce surrounding adjacent mines
+         if (mat[y][x].hasMine && surrMines == 8) {
+            mat[y][x].hasMine = false
+            totalMines--
+            mat[y][x].isRevealed = true
+            minesRemoved++
+            for (let i = -1; i < 2; i++) {
+               for (let j = -1; j < 2; j++) {
+                  if (!i && !j) continue
+                  if (!indexInMatrix(x + i, y + j, mat)) continue
+                  mat[y + j][x + i].remAdjMines()
+               }
             }
          }
       }
+   }
+   if (minesRemoved) {
+      alert("Removed " + minesRemoved + " mines")
+      onReveal(-1, -1) // Special case for updating grid
    }
 }
 
@@ -233,15 +255,18 @@ function flag(x, y) {
 
 function onReveal(x, y) {
 
+   // Disallow all negative numbers except for (-1, -1) which is for updating grid
    if (x < 0 || y < 0) {
-      console.log("All numbers must be filled in and be positive")
-      return
-   }
-
-   if (revealTile(x, y)) {
-      revAll()
-      document.getElementsByClassName("row")[y].children[x].style.borderColor = "red"; // Highlight mine
-      setTimeout(() => alert("Gameover"), 1)
+      if (x != -1 && y != -1) {
+         console.log("All numbers must be filled in and be positive")
+         return
+      }
+   } else {
+      if (revealTile(x, y)) {
+         revAll()
+         document.getElementsByClassName("row")[y].children[x].style.borderColor = "red"; // Highlight mine
+         setTimeout(() => alert("Gameover"), 1)
+      }
    }
 
    // Update elements on screen
