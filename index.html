@@ -19,29 +19,32 @@
 	<br>
 	<p>Win by flagging all mines</p>
 
+	<div class="grid" id="grid"></div>
+
+	<br>
 	<!-- Placeholder values for explaining symbols -->
-	<div class="grid" id="grid">
+	
 		<div class="row">
 			<div class="tile"></div>
-			<label>&nbsp;Unrevealed tile</label>
+			<label>Unrevealed tile</label>
 		</div>
 		<div class="row">
 			<div class="tile">^</div>
-			<label>&nbsp;Flagged tile</label>
+			<label>Flagged tile</label>
 		</div>
 		<div class="row">
 			<div class="tile revealed"></div>
-			<label>&nbsp;Emtpy tile, 0 adjacent mines</label>
+			<label>Emtpy tile, 0 adjacent mines</label>
 		</div>
 		<div class="row">
 			<div class="tile revealed" style="color: #0000cc;">1</div>
-			<label>&nbsp;Revealed tile, 1 adjacent mine</label>
+			<label>Revealed tile, 1 adjacent mine</label>
 		</div>
 		<div class="row">
 			<div class="tile revealed">*</div>
-			<label>&nbsp;Revealed mine</label>
+			<label>Revealed mine</label>
 		</div>
-	</div>
+	
 
 	<script src="script.js"></script>
 </body>
