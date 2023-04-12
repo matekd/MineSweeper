@@ -18,7 +18,6 @@ class Tile {
       return this.hasMine
    }
 
-   // temp values
    toString() {
       if (this.isFlagged) return '^'   // Flag
       if (!this.isRevealed) return ' ' // Not revealed
@@ -33,22 +32,22 @@ class Tile {
 
    remAdjMines() {
       this.adjMines--
-      // if 0
+      // Ensure tiles can be empty again
       if (!this.adjMines && !this.hasMine) this.isEmpty = true
    }
 }
 
 var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = [], firstClick = true
-const maxGridsize = 2500, 
-   colors = ['#000000', '#0000cc', '#339933', '#cc3300', '#000080', '#800000', '#006600', '#b36b00', '#ff9900']
+const maxGridsize = 2500
+const colors = ['#000000', '#0000cc', '#339933', '#cc3300', '#000080', '#800000', '#006600', '#b36b00', '#ff9900']
 
 // Creates an array of tiles, tiles with mines are placed first
 function fillArray(mines, x, y) {
 
-   let arr = []
+   let arr = Array(x * y)
 
-   for (let i = x * y; i > 0; i--) {
-      arr.push(new Tile(mines-- > 0))
+   for (let i = 0; i < x * y; i++) {
+      arr[i] = new Tile(mines-- > 0)
    }
    return arr
 }
@@ -73,11 +72,11 @@ function toMatrix(x, y, arr) {
 
    if (x * y !== arr.length) return null
 
-   let mat = [], row = []
+   let mat = Array(y)
 
    for (let i = 0; i < y; i++) {
-      row = arr.slice(x * i, x * (i + 1))
-      mat.push(row)
+      
+      mat[i] = arr.slice(x * i, x * (i + 1))
    }
 
    return mat
@@ -148,46 +147,33 @@ function printGrid() {
 
 // Reveal Tile Vertical, Horizontal and Diagonal
 function revealTile(x, y) {
-   let mat = grid
-   // Outside of matrix
-   if (!indexInMatrix(x, y, mat)) return 0
 
-   // Is already revealed
-   if (mat[y][x].isRevealed) return 0
+   if (!indexInMatrix(x, y, grid)) return 0
 
-   // Unflag if flagged
-   if (mat[y][x].isFlagged) flag(x, y)
+   if (grid[y][x].isRevealed) return 0
+
+   if (grid[y][x].isFlagged) flag(x, y)
 
    // If tile has mine
-   if (mat[y][x].reveal()) {
+   if (grid[y][x].reveal()) {
       if (!firstClick) return 1
-      
-      for (let i = -1; i < 2; i++) {
-         for (let j = -1; j < 2; j++) {
-            if (!i && !j) continue
-            if (indexInMatrix(x + i, y + j, mat)) mat[y + j][x + i].remAdjMines()
-         }
-      }
-      mat[y][x].hasMine = false
+
+      adjacent(x, y, grid, (x, y, mat) => { mat[y][x].remAdjMines() })
+      grid[y][x].hasMine = false
       totalMines--
+      if (!grid[y][x].adjMines) grid[y][x].isEmpty = true
       alert("Removed 1 mine")
+      if (totalFlags === 0) setTimeout(() => alert("You win!"), 1)
    }
 
    firstClick = false
 
    // If a tile is empty, reveal all neighbours, otherwise return
-   if (!mat[y][x].isEmpty) return 0
+   if (!grid[y][x].isEmpty) return 0
 
-   // Check if all surrounding indexes are valid then reveal them
-   for (let i = -1; i < 2; i++) {
-      for (let j = -1; j < 2; j++) {
-         // If both are 0 then it is the center, not a neighbour
-         if (!i && !j) continue
-         if (!indexInMatrix(x + i, y + j, mat)) continue
-         if (!grid[y + j][x + i].isRevealed) revealTile(x + i, y + j)
-         
-      }
-   }
+   // Reveal all surrounding indexes
+   adjacent(x, y, grid, (x, y, mat) => { if (!mat[y][x].isRevealed) revealTile(x, y) })
+
    return 0
 }
 
@@ -196,38 +182,30 @@ function indexInMatrix(x, y, mat) {
    return x < mat[0].length && y < mat.length && x >= 0 && y >= 0
 }
 
+// Used for detecting 3x3s of mines
+var surrMines = 0
+
 // Counts how many mines a tile is adjacent to, except for tiles which has a mine
 function countAdjMines() {
-   let mat = grid, surrMines = 0, minesRemoved = 0
+   let minesRemoved = 0
    // Search for mines and add to adjacent mines for all surrounding tiles
-   for (let y = 0; y < mat.length; y++) {
-      for (let x = 0; x < mat[0].length; x++) {
+   for (let y = 0; y < grid.length; y++) {
+      for (let x = 0; x < grid[0].length; x++) {
 
-         if (!mat[y][x].hasMine) continue
+         if (!grid[y][x].hasMine) continue
 
          surrMines = 0
-         // Checking adjacent indexes, ignoring the center
-         for (let i = -1; i < 2; i++) {
-            for (let j = -1; j < 2; j++) {
-               if (!i && !j) continue
-               if (!indexInMatrix(x + i, y + j, mat)) continue
-               if (mat[y + j][x + i].hasMine) surrMines++
-               mat[y + j][x + i].addAdjMines()
-            }
-         }
+         adjacent(x, y, grid, (x, y, mat) => {
+            mat[y][x].addAdjMines()
+            if (mat[y][x].hasMine) surrMines++
+         })
          // Remove mine and reduce surrounding adjacent mines
-         if (mat[y][x].hasMine && surrMines == 8) {
-            mat[y][x].hasMine = false
+         if (grid[y][x].hasMine && surrMines == 8) {
+            grid[y][x].hasMine = false
+            grid[y][x].isRevealed = true
             totalMines--
-            mat[y][x].isRevealed = true
             minesRemoved++
-            for (let i = -1; i < 2; i++) {
-               for (let j = -1; j < 2; j++) {
-                  if (!i && !j) continue
-                  if (!indexInMatrix(x + i, y + j, mat)) continue
-                  mat[y + j][x + i].remAdjMines()
-               }
-            }
+            adjacent(x, y, grid, (x, y, mat) => { mat[y][x].remAdjMines() })
          }
       }
    }
@@ -302,6 +280,17 @@ function onFlag(x, y) {
       row.children[x].innerHTML = grid[y][x].toString()
    }
    printGrid()
+}
+
+function adjacent(x, y, mat, callback) {
+   // Checking adjacent indexes, ignoring the center
+	for (let i = -1; i < 2; i++) {
+		for (let j = -1; j < 2; j++) {
+			if (!i && !j) continue
+			if (!indexInMatrix(x + i, y + j, mat)) continue
+			callback(x + i, y + j, mat)
+		}
+	}
 }
 
 function revAll() {

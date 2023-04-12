@@ -1,28 +1,38 @@
 .tile {
     /* 20x20 */
-    height:16px;
+    height: 16px;
     width: 16px;
     background-color: rgb(230, 230, 230);
     border-style: solid;
     border-bottom-color: rgb(160, 160, 160);
     border-right-color: rgb(160, 160, 160);
-    border-top-color: rgb(240, 240, 240);
-    border-left-color: rgb(240, 240, 240);
-    border-width: 2px;
+    border-top-color: rgb(255, 255, 255);
+    border-left-color: rgb(255, 255, 255);
+    border-width: 3px;
     text-align: center;
+    margin-right: 1px;
+    margin-bottom: 1px;
 }
 .row {
     display: flex;
-}
-.grid {
-    border-style: solid;
-    border-color: rgb(200, 200, 200);
-    border-width: 1px;
-    width: -moz-fit-content;
-    width: fit-content;
     font-family: monospace;
     font-weight: bold;
     font-size: 16px;
+}
+.grid {
+    /*border-style: solid;
+    border-color: rgb(200, 200, 200);
+    border-bottom-color: rgb(255, 255, 255);
+    border-right-color: rgb(255, 255, 255);
+    border-top-color: rgb(160, 160, 160);
+    border-left-color: rgb(160, 160, 160);
+    border-width: 3px;*/
+    width: -moz-fit-content;
+    width: fit-content;
+    padding-left: 1px;
+    padding-top: 1px;
+    background-color: rgb(200, 200, 200);
+    margin: 2px;
 }
 body {
     padding-top: 75px;
@@ -36,5 +46,9 @@ p {
     margin: auto;
 }
 .revealed {
-    border-color: rgb(200, 200, 200);
+    border-color: rgb(230, 230, 230);
+}
+.row label {
+    padding-left: 5px;
+    padding-right: 5px;
 }
