@@ -161,7 +161,9 @@ function revealTile(x, y) {
       adjacent(x, y, grid, (x, y, mat) => { mat[y][x].remAdjMines() })
       grid[y][x].hasMine = false
       totalMines--
+      if (!grid[y][x].adjMines) grid[y][x].isEmpty = true
       alert("Removed 1 mine")
+      if (totalFlags === 0) setTimeout(() => alert("You win!"), 1)
    }
 
    firstClick = false
