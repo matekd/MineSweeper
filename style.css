@@ -48,7 +48,14 @@ p {
 .revealed {
     border-color: rgb(230, 230, 230);
 }
-.row label {
+.col label {
     padding-left: 5px;
-    padding-right: 5px;
+}
+.col {
+    display: flex;
+    flex-flow: column;
+    justify-content: space-between;
+}
+.col:first-of-type {
+    background-color: rgb(200, 200, 200);
 }

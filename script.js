@@ -163,7 +163,6 @@ function revealTile(x, y) {
       totalMines--
       if (!grid[y][x].adjMines) grid[y][x].isEmpty = true
       alert("Removed 1 mine")
-      if (totalFlags === 0) setTimeout(() => alert("You win!"), 1)
    }
 
    firstClick = false
@@ -248,19 +247,17 @@ function onReveal(x, y) {
    }
 
    // Update elements on screen
-   for (let i = 0; i < grid.length; i++) {
-      let row = document.getElementsByClassName("row")[i]
-      for (let j = 0; j < grid[0].length; j++) {
-         
-         if (grid[i][j].isRevealed) {
-            row.children[j].className = "tile revealed"
-            row.children[j].innerHTML = grid[i][j].toString()
-            // Only change color if not a flag or mine
-            if (row.children[j].innerHTML == '^' || row.children[j].innerHTML == '*') continue
-            row.children[j].style.color = colors[grid[i][j].adjMines]
+   updateTileElements((tile, element) => {
+      if (tile.isRevealed) {
+         element.className = "tile revealed"
+         element.innerHTML = tile.toString()
+         // Only change color if not a flag or mine
+         if (element.innerHTML != '^' && element.innerHTML != '*') {
+            element.style.color = colors[tile.adjMines]
          }
       }
-   }
+   })
+   
    printGrid()
 }
 
@@ -291,6 +288,17 @@ function adjacent(x, y, mat, callback) {
 			callback(x + i, y + j, mat)
 		}
 	}
+}
+
+function updateTileElements(callback) {
+   // Update elements on screen
+   for (let i = 0; i < grid.length; i++) {
+      // The class 'row' is used outside the grid. Those in the grid are first on the page.
+      let row = document.getElementsByClassName("row")[i]
+      for (let j = 0; j < grid[0].length; j++) {
+         callback(grid[i][j], row.children[j])
+      }
+   }
 }
 
 function revAll() {
