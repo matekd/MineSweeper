@@ -37,16 +37,16 @@ class Tile {
    }
 }
 
-var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = [], firstClick = true
+var totalMines = 0, totalFlags = 0, flaggedMines = 0, grid = [], firstClick = true, gridX = 0, gridY = 0
 const maxGridsize = 2500
 const colors = ['#000000', '#0000cc', '#339933', '#cc3300', '#000080', '#800000', '#006600', '#b36b00', '#ff9900']
 
 // Creates an array of tiles, tiles with mines are placed first
-function fillArray(mines, x, y) {
+function fillArray(mines, amount) {
 
-   let arr = Array(x * y)
+   let arr = Array(amount)
 
-   for (let i = 0; i < x * y; i++) {
+   for (let i = 0; i < amount; i++) {
       arr[i] = new Tile(mines-- > 0)
    }
    return arr
@@ -75,7 +75,6 @@ function toMatrix(x, y, arr) {
    let mat = Array(y)
 
    for (let i = 0; i < y; i++) {
-      
       mat[i] = arr.slice(x * i, x * (i + 1))
    }
 
@@ -85,24 +84,24 @@ function toMatrix(x, y, arr) {
 function generate() {
 
    let mines = Number(document.getElementById("Mines").value)
-   let x = Number(document.getElementById("X").value)
-   let y = Number(document.getElementById("Y").value)
+   gridX = Number(document.getElementById("X").value)
+   gridY = Number(document.getElementById("Y").value)
    
    // Reset before next grid
    totalFlags = 0, totalMines = 0, flaggedMines = 0, grid = []
    document.getElementById("grid").innerHTML = ""
 
-   if (x * y > maxGridsize) {
+   if (gridX * gridY > maxGridsize) {
       alert("The grid cannot contain more than " + maxGridsize + " tiles!")
       return
    }
    
-   if (!x || !y || !mines || mines <= 0 || x <= 0 || y <= 0) {
+   if (!gridX || !gridY || !mines || mines <= 0 || gridX <= 0 || gridY <= 0) {
       alert("All numbers must be filled in and be above 0")
       return
    }
 
-   if (x * y <= mines) {
+   if (gridX * gridY <= mines) {
       alert("All tiles can't have mines")
       return
    }
@@ -110,27 +109,24 @@ function generate() {
    firstClick = true
    totalMines = mines
    // Create an array of tiles, shuffle them, then slice them into a matrix (grid)
-   grid = toMatrix(x, y, shuffleArray(fillArray(mines, x, y)))
+   // Create an array of tiles for the grid, last one is added on first click
+   grid = shuffleArray(fillArray(mines, (gridX * gridY - 1)))
 
    if (grid === null) return
 
    // Create the elements of the grid
-   for (let i = 0; i < y; i++) {
+   for (let i = 0; i < gridY; i++) {
       document.getElementById("grid").innerHTML += `<div class="row"></div>`
-      for (let j = 0; j < x; j++) {
+      for (let j = 0; j < gridX; j++) {
          document.getElementsByClassName('row')[i].innerHTML += 
             `<div 
                class="tile" 
                onclick="onReveal(${j}, ${i})" 
                oncontextmenu="onFlag(${j}, ${i});return false">
-               ${grid[i][j].toString()}
             </div>`
       }
    }
    printGrid()
-   
-   // Add the amount of adjacent mines for each tile
-   countAdjMines()
 }
 
 function printGrid() {
@@ -155,24 +151,10 @@ function revealTile(x, y) {
    if (grid[y][x].isFlagged) flag(x, y)
 
    // If tile has mine
-   if (grid[y][x].reveal()) {
-      if (!firstClick) return 1
-
-      adjacent(x, y, grid, (x, y, mat) => { mat[y][x].remAdjMines() })
-      grid[y][x].hasMine = false
-      totalMines--
-      if (!grid[y][x].adjMines) grid[y][x].isEmpty = true
-      alert("Removed 1 mine")
-      if (totalFlags === 0) setTimeout(() => alert("You win!"), 1)
-   }
-
-   firstClick = false
-
-   // If a tile is empty, reveal all neighbours, otherwise return
-   if (!grid[y][x].isEmpty) return 0
+   if (grid[y][x].reveal()) return 1
 
    // Reveal all surrounding indexes
-   adjacent(x, y, grid, (x, y, mat) => { if (!mat[y][x].isRevealed) revealTile(x, y) })
+   if (grid[y][x].isEmpty) adjacent(x, y, grid, (x, y, mat) => { if (!mat[y][x].isRevealed) revealTile(x, y) })
 
    return 0
 }
@@ -185,7 +167,7 @@ function indexInMatrix(x, y, mat) {
 // Used for detecting 3x3s of mines
 var surrMines = 0
 
-// Counts how many mines a tile is adjacent to, except for tiles which has a mine
+// Counts how many mines a tile is adjacent to, except for tiles with a mine
 function countAdjMines() {
    let minesRemoved = 0
    // Search for mines and add to adjacent mines for all surrounding tiles
@@ -233,6 +215,16 @@ function flag(x, y) {
 
 function onReveal(x, y) {
 
+   // Add empty tile on first attempt, slice final grid array into matrix, and count adjacent mines
+   if (firstClick) {
+      firstClick = false
+      // Flatten grid coordiantes, insert empty tile
+      grid.splice(y * gridX + x, 0, new Tile(0))
+      grid = toMatrix(gridX, gridY, grid)
+      if (grid === null) return
+      countAdjMines()
+   }
+
    // Disallow all negative numbers except for (-1, -1) which is for updating grid
    if (x < 0 || y < 0) {
       if (x != -1 && y != -1) {
@@ -248,19 +240,17 @@ function onReveal(x, y) {
    }
 
    // Update elements on screen
-   for (let i = 0; i < grid.length; i++) {
-      let row = document.getElementsByClassName("row")[i]
-      for (let j = 0; j < grid[0].length; j++) {
-         
-         if (grid[i][j].isRevealed) {
-            row.children[j].className = "tile revealed"
-            row.children[j].innerHTML = grid[i][j].toString()
-            // Only change color if not a flag or mine
-            if (row.children[j].innerHTML == '^' || row.children[j].innerHTML == '*') continue
-            row.children[j].style.color = colors[grid[i][j].adjMines]
+   updateTileElements((tile, element) => {
+      if (tile.isRevealed) {
+         element.className = "tile revealed"
+         element.innerHTML = tile.toString()
+         // Only change color if not a flag or mine
+         if (element.innerHTML != '^' && element.innerHTML != '*') {
+            element.style.color = colors[tile.adjMines]
          }
       }
-   }
+   })
+   
    printGrid()
 }
 
@@ -291,6 +281,17 @@ function adjacent(x, y, mat, callback) {
 			callback(x + i, y + j, mat)
 		}
 	}
+}
+
+function updateTileElements(callback) {
+   // Update elements on screen
+   for (let i = 0; i < grid.length; i++) {
+      // The class 'row' is used outside the grid. Those in the grid are first on the page.
+      let row = document.getElementsByClassName("row")[i]
+      for (let j = 0; j < grid[0].length; j++) {
+         callback(grid[i][j], row.children[j])
+      }
+   }
 }
 
 function revAll() {

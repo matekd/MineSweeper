@@ -1,51 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<meta content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>My Sweeper</title>
-	<link rel="stylesheet" href="style.css">
-</head>
-<body>
-	<div>
-		<label>Grid size</label> <br>
-		<label for="X">X: </label> <input type="number" id="X" value="9"> <br>
-		<label for="Y">Y: </label> <input type="number" id="Y" value="9"> <br>
-		<label for="Mines">Mines: </label> <input type="number" id="Mines" value="10"> <br>
-		<button type="submit" onclick="generate()">Generate</button>
-	</div>
+	<head>
+		<meta charset="UTF-8">
+		<meta content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>My Sweeper</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<div>
+			<label>Grid size</label> <br>
+			<label for="X">X: </label> <input type="number" id="X" value="9"> <br>
+			<label for="Y">Y: </label> <input type="number" id="Y" value="9"> <br>
+			<label for="Mines">Mines: </label> <input type="number" id="Mines" value="10"> <br>
+			<button type="submit" onclick="generate()">Generate</button>
+		</div>
+		<br>
+		<p>Win by flagging all mines</p>
 
-	<br>
-	<p>Win by flagging all mines</p>
-
-	<div class="grid" id="grid"></div>
-
-	<br>
-	<!-- Placeholder values for explaining symbols -->
-	
+		<!-- This contains the game -->
+		<div class="grid" id="grid"></div> <br>
+		
+		<!-- Info explaining tile values -->
 		<div class="row">
-			<div class="tile"></div>
-			<label>Unrevealed tile</label>
+			<div class="col">
+				<div class="tile"></div>
+				<div class="tile">^</div>
+				<div class="tile revealed"></div>
+				<div class="tile revealed" style="color: #0000cc;">1</div>
+				<div class="tile revealed">*</div>
+			</div>
+			<div class="col">
+				<label>Unrevealed tile</label>
+				<label>Flagged tile</label>
+				<label>Emtpy tile, 0 adjacent mines</label>
+				<label>Revealed tile, 1 adjacent mine</label>
+				<label>Revealed mine</label>
+			</div>
 		</div>
-		<div class="row">
-			<div class="tile">^</div>
-			<label>Flagged tile</label>
-		</div>
-		<div class="row">
-			<div class="tile revealed"></div>
-			<label>Emtpy tile, 0 adjacent mines</label>
-		</div>
-		<div class="row">
-			<div class="tile revealed" style="color: #0000cc;">1</div>
-			<label>Revealed tile, 1 adjacent mine</label>
-		</div>
-		<div class="row">
-			<div class="tile revealed">*</div>
-			<label>Revealed mine</label>
-		</div>
-	
-
-	<script src="script.js"></script>
-</body>
+		
+		<script src="script.js"></script>
+	</body>
 </html>
